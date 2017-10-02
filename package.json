@@ -1,0 +1,24 @@
+{
+  "name": "twitter_bot",
+  "version": "1.0.0",
+  "description": "a bot that takes r/funny top posts and puts them on twitter",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hunkim2/twitter_reddit_bot.git"
+  },
+  "author": "Hun Howard Kim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hunkim2/twitter_reddit_bot/issues"
+  },
+  "homepage": "https://github.com/hunkim2/twitter_reddit_bot#readme",
+  "dependencies": {
+    "nodemon": "^1.12.1",
+    "twit": "^2.2.9"
+  }
+}
