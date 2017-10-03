@@ -15,7 +15,6 @@ var stream = T.stream('user');
 stream.on('follow', followed);
 
 function followed(eventMsg){
-    console.log('eventMsg: ', eventMsg);
     var streamName = eventMsg.source.screen_name;
     var name = eventMsg.source.name;
     var msg = '@' + streamName + ' ooooooeeeee thank you for the follow ' + name + '. Here\'s the Top Post on r/funny! ';
@@ -39,7 +38,14 @@ function dlGifs(msg){
 }
 
 function upLoadMediaTwitter(file_dir, msg){
+  //sets the media upload to a variable
   var media_upload = fs.readFileSync(file_dir, {encoding: 'base64'});
+  //deletes the file after its initial use
+  fs.unlinkSync(file_dir, (err)=>{
+    if(err) throw err;
+    console.log('successfully deleted!');
+  });
+  //starts posting to twitter
   T.post('media/upload', {media_data: media_upload}, function(err ,data, response){
     var mediaIdStr = data.media_id_string;
     var altText = "Twitter Bot Response";
