@@ -14,24 +14,31 @@ var stream = T.stream('user');
 //Anytime someone follows me
 stream.on('follow', followed);
 
+
 function followed(eventMsg){
-    var streamName = eventMsg.source.screen_name;
-    var name = eventMsg.source.name;
-    var msg = '@' + streamName + ' ooooooeeeee thank you for the follow ' + name + '. Here\'s the Top Post on r/funny! ';
-    dlGifs(msg);
+    const streamName = eventMsg.source.screen_name;
+    const name = eventMsg.source.name;
+    const msg = '@' + streamName + ' ooooooeeeee thank you for the follow ' + name + '. Here\'s the Top Post on r/ProgrammerHumor!! ';
+    const errorMessage = `@${streamName} Oooooeeee it looks like my developer didn\'t account for this error, shame on him!`
+    dlGifs(msg, errorMessage);
 }
 
-function dlGifs(msg){
-  snooper.watcher.getListingWatcher('funny', {
+function dlGifs(msg, errorMessage){
+  snooper.watcher.getListingWatcher('programmerhumor', {
     listing: 'top_day',
     limit: 1
   }).on('item' , function(post){
     let urlmatch = post.data.url.match('\.([a-zA-Z]+$)');
-    if(!post.data.stickied && post.kind === 't3'){
-      var file_dir = "./funny/"+post.data.id+urlmatch[0];
-      request(post.data.url).pipe(fs.createWriteStream(file_dir)
+    if(post.kind === 't3' && urlmatch){
+      var file_dir = "./funny/"+post.data.title;
+      request(post.data.thumbnail).pipe(fs.createWriteStream(file_dir)
     ).on('finish', function(){
-      upLoadMediaTwitter(file_dir,msg);
+      try{
+        upLoadMediaTwitter(file_dir, msg);                
+      }
+      catch (err){
+        errorMediaTwitterUpload(errorMessage);        
+      }
     });
     }
   });
@@ -43,23 +50,29 @@ function upLoadMediaTwitter(file_dir, msg){
   //deletes the file after its initial use
   fs.unlinkSync(file_dir, (err)=>{
     if(err) throw err;
-    console.log('successfully deleted!');
   });
   //starts posting to twitter
   T.post('media/upload', {media_data: media_upload}, function(err ,data, response){
+    if(err) throw err;
     var mediaIdStr = data.media_id_string;
     var altText = "Twitter Bot Response";
     var meta_params = { media_id: mediaIdStr, alt_text: {text: altText} }
     T.post('media/metadata/create', meta_params, function(err, data, response){
-      if(!err){
+        if(err) throw err;
         var params = {status: msg, media_ids: [mediaIdStr]}
         T.post('statuses/update', params, function(err, data, response){
+          if(err) throw err;
           console.log('this was a success!');
         });
-      }
     });
   });
 }
 
+function errorMediaTwitterUpload(errorMessage){
+  console.log('this is the errormessage!');
+  T.post('statuses/update', { status: errorMessage }, function(err, data, response) {
+    console.log('success!!');
+  })
+}
 // tweetIt();
 // setInterval(tweetIt, 1000*20);
